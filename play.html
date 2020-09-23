@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sushi Go! Friend</title>
+  </head>
+  <body>
+    <main>
+      <h1>Play!</h1>
+      <ul id="players"></ul>
+    </main>
+    <script>
+      (() => {
+        const players = JSON.parse(sessionStorage.getItem("players"));
+        if (!players) alert("Something went wrong!");
+        let score = JSON.parse(sessionStorage.getItem("score"));
+        if (!score) {
+          score = players.reduce((acc, name) => {
+            // Pudding, 1, 2, 3
+            acc[name] = [0, 0, 0, 0];
+            return acc;
+          }, {});
+          sessionStorage.setItem("score", JSON.stringify(score));
+        }
+
+        const list = document.querySelector("#players");
+
+        function renderPlayers() {
+          list.innerHTML = "";
+          players.forEach((name) => {
+            const item = document.createElement("li");
+            const b = document.createElement("b");
+            b.textContent = name;
+            item.appendChild(b);
+            list.appendChild(item);
+
+            const roundContainer = document.createElement("div");
+
+            [1, 2, 3].forEach((round) => {
+              const input = document.createElement("input");
+              input.type = "number";
+              input.setAttribute("aria-label", `Round ${round} score`);
+              input.value = score[name][round];
+
+              input.addEventListener("change", (e) => {
+                updateScore(name, round, e.target.value);
+              });
+
+              roundContainer.appendChild(input);
+            });
+
+            item.appendChild(roundContainer);
+            list.appendChild(item);
+          });
+        }
+
+        function updateScore(name, round, value) {
+          score[name][round] = parseInt(value);
+          sessionStorage.setItem("score", JSON.stringify(score));
+        }
+
+        renderPlayers();
+      })();
+    </script>
+  </body>
+</html>

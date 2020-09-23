@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sushi Go! Friend</title>
+  </head>
+  <body>
+    <main>
+      <h1>Add a player</h1>
+      <form action="/" id="add-player">
+        <label>
+          <b>Player name</b>
+          <input name="name" />
+        </label>
+        <button>Add</button>
+      </form>
+      <ul id="players"></ul>
+      <a href="/play.html">Play</a>
+    </main>
+    <script>
+      (() => {
+        let players = JSON.parse(sessionStorage.getItem("players")) || [];
+        const form = document.querySelector("#add-player");
+        const list = document.querySelector("#players");
+
+        const renderEvent = new CustomEvent("render", { bubbles: true });
+
+        window.addEventListener("render", () => [renderPlayers()]);
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const data = new FormData(event.target);
+          const name = data.get("name");
+          addPlayer(name);
+          event.target.reset();
+          form.dispatchEvent(renderEvent);
+        });
+
+        function addPlayer(name) {
+          players.push(name);
+          sessionStorage.setItem("players", JSON.stringify(players));
+        }
+
+        function removePlayer(name) {
+          players = players.filter((n) => n !== name);
+          sessionStorage.setItem("players", JSON.stringify(players));
+        }
+
+        function renderPlayers() {
+          list.innerHTML = "";
+          players.forEach((name) => {
+            const item = document.createElement("li");
+            item.textContent = name;
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "Remove";
+            removeButton.addEventListener("click", () => {
+              removePlayer(name);
+              removeButton.dispatchEvent(renderEvent);
+            });
+            item.appendChild(removeButton);
+            list.appendChild(item);
+          });
+        }
+
+        window.dispatchEvent(renderEvent);
+      })();
+    </script>
+  </body>
+</html>

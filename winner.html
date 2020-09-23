@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Winner - Sushi Go! Friend</title>
+  </head>
+  <body>
+    <main>
+      <h1>And the winner is...</h1>
+      <ul id="players"></ul>
+      <a href="/play.html" id="play-again">Play again?</a>
+    </main>
+    <script>
+      (() => {
+        const score = JSON.parse(sessionStorage.getItem("score"));
+        if (!score) window.location.replace("/index.html");
+
+        const finalScore = Object.entries(score).reduce(
+          (acc, [name, values]) => {
+            acc[name] = values.reduce((a, v) => {
+              a += v;
+              return a;
+            }, 0);
+            return acc;
+          },
+          {}
+        );
+
+        const ranked = Object.entries(finalScore).sort((a, b) => a[1] - b[1]);
+
+        const players = document.querySelector("#players");
+
+        ranked.forEach((array, i) => {
+          let text = formatPlayerScore(array);
+          if (i === 0) {
+            text = "🏆 " + text;
+          }
+          const item = document.createElement("li");
+          item.textContent = text;
+          players.appendChild(item);
+        });
+
+        function formatPlayerScore(score) {
+          return score.join(" (") + " pts)";
+        }
+
+        const playAgain = document.getElementById('play-again')
+        playAgain.addEventListener('click', () => {
+            const nextScore = Object.keys(score).reduce((acc, name) => {
+                acc[name] = [0, 0, 0, 0]
+                return acc
+            }, {})
+
+            sessionStorage.setItem('score', JSON.stringify(nextScore))
+        })
+      })();
+    </script>
+  </body>
+</html>

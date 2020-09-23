@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dessert - Sushi Go! Friend</title>
+  </head>
+  <body>
+    <main>
+      <h1>Don't forget the pudding!</h1>
+      <form action="." id="most">
+        <h2>Who had the most pudding?</h2>
+      </form>
+      <form action="." id="least">
+        <h2>Who had the least pudding?</h2>
+      </form>
+      <a href="/winner.html">Who won?</a>
+    </main>
+    <script>
+      (() => {
+        const players = JSON.parse(sessionStorage.getItem("players"));
+        const score = JSON.parse(sessionStorage.getItem("score"));
+        if (!players || !score) alert("Uh oh!");
+        const mostForm = document.querySelector("#most");
+        const leastForm = document.querySelector("#least");
+
+        function updateScore(name, round, value) {
+          score[name][round] = parseInt(value);
+          sessionStorage.setItem("score", JSON.stringify(score));
+        }
+
+        function renderOptions(parent, cb) {
+          players.forEach((name) => {
+            const label = document.createElement("label");
+            label.textContent = name;
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = name;
+            checkbox.addEventListener("change", cb);
+
+            label.prepend(checkbox);
+
+            parent.appendChild(label);
+          });
+        }
+
+        renderOptions(mostForm, () => {
+          const checkboxes = mostForm.querySelectorAll("input");
+          checkboxes.forEach((node) => {
+            const value = node.checked ? 6 / checkedCount(checkboxes) : 0;
+            updateScore(node.value, 0, value);
+          });
+        });
+
+        renderOptions(leastForm, () => {
+          const checkboxes = leastForm.querySelectorAll("input");
+
+          checkboxes.forEach((node) => {
+            const value = node.checked ? -(6 / checkedCount(checkboxes)) : 0;
+            updateScore(node.value, 0, value);
+          });
+        });
+
+        function checkedCount(nodeList) {
+          let count = 0;
+          nodeList.forEach((node) => {
+            if (node.checked) count++;
+          });
+          return count;
+        }
+      })();
+    </script>
+  </body>
+</html>
